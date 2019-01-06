@@ -8,11 +8,11 @@ import org.cyclopsgroup.jcli.annotation.Option;
 @Cli(name = "seetl")
 public class FlixportCliOptions {
 
-  private String destBucketName = "jiaqi-test-2";
+  public String destCredentialSpec = "";
 
-  public String destCredentialsFile = "";
+  private String destPath = "flickr";
 
-  private String destPathPrefix = "flickr";
+  private String destSpec = "jiaqi-test-2";
 
   private boolean dryRun;
 
@@ -29,16 +29,16 @@ public class FlixportCliOptions {
 
   private int threads = 5;
 
-  public String getDestBucketName() {
-    return destBucketName;
+  public String getDestCredentialSpec() {
+    return destCredentialSpec;
   }
 
-  public String getDestCredentialsFile() {
-    return destCredentialsFile;
+  public String getDestPath() {
+    return destPath;
   }
 
-  public String getDestPathPrefix() {
-    return destPathPrefix;
+  public String getDestSpec() {
+    return destSpec;
   }
 
   public String getFlickAppKey() {
@@ -69,22 +69,23 @@ public class FlixportCliOptions {
     return forceToAuthenticate;
   }
 
-  @Option(name = "b", longName = "bucket_name", description = "Google storage bucket name")
-  public void setDestBucketName(String destBucketName) {
-    this.destBucketName = destBucketName;
-  }
-
-  @Option(name = "g", longName = "dest_creds", description = "Destination storage credentials file")
-  public void setDestCredentialsFile(String destCredentialsFile) {
-    this.destCredentialsFile = destCredentialsFile;
+  @Option(name = "c", longName = "credential_spec",
+      description = "Destination storage credentials file")
+  public void setDestCredentialSpec(String destCredentialsFile) {
+    this.destCredentialSpec = destCredentialsFile;
   }
 
   @Option(name = "p", longName = "path_prefix", description = "Destination path prefix")
-  public void setDestPathPrefix(String destPathPrefix) {
-    this.destPathPrefix = destPathPrefix;
+  public void setDestPath(String destPathPrefix) {
+    this.destPath = destPathPrefix;
   }
 
-  @Option(name = "d", longName = "dry_run",
+  @Option(name = "d", longName = "dest_spec", description = "Destination spec")
+  public void setDestSpec(String destBucketName) {
+    this.destSpec = destBucketName;
+  }
+
+  @Option(name = "r", longName = "dry_run",
       description = "Log action without actually copying files")
   public void setDryRun(boolean dryRun) {
     this.dryRun = dryRun;
@@ -100,13 +101,13 @@ public class FlixportCliOptions {
     this.flickAppSecret = flickAppSecret;
   }
 
-  @Option(name = "c", longName = "flickr_creds_dir",
-      description = "Directory of flickr credentials")
+  @Option(name = "a", longName = "flickr_auth_dir",
+      description = "Directory of flickr authentication credentials")
   public void setFlickCredentialsDirectory(String flickCredentialsDirectory) {
     this.flickCredentialsDirectory = flickCredentialsDirectory;
   }
 
-  @Option(name = "a", longName = "force_to_authenticate", description = "Force to authenticate")
+  @Option(name = "f", longName = "force_to_authenticate", description = "Force to authenticate")
   public void setForceToAuthenticate(boolean forceToAuthenticate) {
     this.forceToAuthenticate = forceToAuthenticate;
   }

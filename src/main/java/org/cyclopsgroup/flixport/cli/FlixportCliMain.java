@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.cyclopsgroup.flixport.cli.FlickrClient.CollectionFn;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
-import org.cyclopsgroup.flixport.store.gcs.GoogleStorageClient;
 import org.cyclopsgroup.jcli.ArgumentProcessor;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.collections.Collection;
@@ -134,10 +133,11 @@ public class FlixportCliMain {
     FlickrClient fc = new FlickrClient(options.getFlickAppKey(), options.getFlickAppSecret());
     fc.authenticate(new File(options.getFlickCredentialsDirectory()),
         options.isForceToAuthenticate());
-    GoogleStorageClient gcs =
-        new GoogleStorageClient(options.getDestBucketName(), options.getDestPathPrefix(),
-            options.destCredentialsFile.isEmpty() ? null : new File(options.destCredentialsFile));
-    fc.traverseCollections(new CopyToGoogleStorageFn(fc, gcs, options.getMaxFilesToCopy(),
+
+    DestinationStorage storage =
+        new DynamicDestinationStorage(options.getDestSpec(), options.destCredentialSpec);
+    logger.atInfo().log("Destination storage is %s.", storage);
+    fc.traverseCollections(new CopyToGoogleStorageFn(fc, storage, options.getMaxFilesToCopy(),
         options.getThreads(), options.isDryRun()), "");
   }
 }

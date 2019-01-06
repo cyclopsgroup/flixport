@@ -38,7 +38,7 @@ public class GoogleStorageClient implements DestinationStorage {
   private final String prefix;
   private final Storage storage;
 
-  public GoogleStorageClient(String bucketName, String prefix, @Nullable File credentials)
+  GoogleStorageClient(String bucketName, String prefix, @Nullable File credentials)
       throws IOException {
     this.storage = createOptions(credentials).getService();
     this.bucketName = bucketName;
