@@ -16,9 +16,9 @@ public class FlixportCliOptions {
 
   private boolean dryRun;
 
-  private String flickAppKey = "9e29c69c42532a690ed1d9cb22bd27a8";
+  private String flickAppKey;
 
-  private String flickAppSecret = "075f83fc3bb3e6f2";
+  private String flickAppSecret;
 
   private String flickCredentialsDirectory =
       System.getProperty("user.home") + File.separatorChar + ".flickr";
@@ -91,12 +91,14 @@ public class FlixportCliOptions {
     this.dryRun = dryRun;
   }
 
-  @Option(name = "k", longName = "flickr_app_key", description = "Flickr application key")
+  @Option(name = "k", longName = "flickr_app_key", description = "Flickr application key",
+      required = true)
   public void setFlickAppKey(String flickAppKey) {
     this.flickAppKey = flickAppKey;
   }
 
-  @Option(name = "s", longName = "flickr_app_secret", description = "Flickr application secret")
+  @Option(name = "s", longName = "flickr_app_secret", description = "Flickr application secret",
+      required = true)
   public void setFlickAppSecret(String flickAppSecret) {
     this.flickAppSecret = flickAppSecret;
   }
