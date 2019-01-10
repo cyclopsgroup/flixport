@@ -10,8 +10,11 @@ class FlixportCliOptions {
       description = "Destination storage credentials file")
   String destCredentialSpec = "";
 
-  @Option(name = "p", longName = "path_prefix", description = "Destination file path")
-  String destPath = "/${c.title}/${s.title}/${p.title}.${p.type}";
+  @Option(name = "p", longName = "dest_dir", description = "Directory of destination")
+  String destDir = "/${c.title}/${s.title}";
+
+  @Option(name = "n", longName = "dest_file_name", description = "File name of the output file")
+  String destFileName = "${f.title}.${f.type}";
 
   @Option(name = "d", longName = "dest_spec", description = "Destination spec")
   String destSpec = "gs:jiaqi-test-2/flickr";
