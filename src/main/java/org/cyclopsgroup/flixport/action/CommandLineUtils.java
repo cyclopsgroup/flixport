@@ -1,4 +1,4 @@
-package org.cyclopsgroup.flixport.cli;
+package org.cyclopsgroup.flixport.action;
 
 import java.io.IOException;
 import com.flickr4java.flickr.FlickrException;

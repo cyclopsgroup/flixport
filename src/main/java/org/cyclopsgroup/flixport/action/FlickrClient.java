@@ -1,6 +1,6 @@
-package org.cyclopsgroup.flixport.cli;
+package org.cyclopsgroup.flixport.action;
 
-import static org.cyclopsgroup.flixport.cli.CommandLineUtils.printCall;
+import static org.cyclopsgroup.flixport.action.CommandLineUtils.printCall;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -26,14 +26,14 @@ import com.flickr4java.flickr.photos.Size;
 import com.flickr4java.flickr.util.AuthStore;
 import com.flickr4java.flickr.util.FileAuthStore;
 
-class FlickrClient {
+public class FlickrClient {
   interface CollectionFn<T> {
     T apply(Collection colleciton, T parent) throws FlickrException, IOException;
   }
 
   private final Flickr flickr;
 
-  FlickrClient(String appId, String appSecret) {
+  public FlickrClient(String appId, String appSecret) {
     flickr = new Flickr(appId, appSecret, new REST());
   }
 
@@ -52,7 +52,8 @@ class FlickrClient {
     }
   }
 
-  void authenticate(File authDir, boolean forceToAuthenticate) throws FlickrException, IOException {
+  public void authenticate(File authDir, boolean forceToAuthenticate)
+      throws FlickrException, IOException {
     AuthStore authStore = new FileAuthStore(
         new File(System.getProperty("user.home") + File.separatorChar + ".flickr"));
     List<Auth> auths = printCall("Existing auths", () -> Arrays.asList(authStore.retrieveAll()));

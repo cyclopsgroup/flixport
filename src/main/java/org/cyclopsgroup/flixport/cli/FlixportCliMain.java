@@ -1,18 +1,20 @@
 package org.cyclopsgroup.flixport.cli;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.cyclopsgroup.flixport.cli.FlickrClient.CollectionFn;
+import org.cyclopsgroup.flixport.action.FlickrClient;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import org.cyclopsgroup.jcli.ArgumentProcessor;
 import com.flickr4java.flickr.FlickrException;
@@ -127,15 +129,37 @@ public class FlixportCliMain {
 
   public static void main(String[] args) throws IOException, FlickrException {
     FlixportCliOptions options = new FlixportCliOptions();
-    ArgumentProcessor.forType(FlixportCliOptions.class).process(args, options);
+    ArgumentProcessor<FlixportCliOptions> processor =
+        ArgumentProcessor.forType(FlixportCliOptions.class);
+    processor.process(args, options);
+
+    File appDir = new File(options.flixportDir).getAbsoluteFile();
+    if (!appDir.isDirectory()) {
+      if (appDir.mkdirs()) {
+        logger.atInfo().log("Made working directory %s.", appDir);
+      } else {
+        logger.atWarning().log("Can't make working directory %s.", appDir);
+      }
+    }
+    File propFile = new File(appDir, "cli.properties");
+    if (propFile.isFile()) {
+      logger.atInfo().log("Reading additional options from properties file %s.", propFile);
+      Properties props = new Properties();
+      try (FileReader in = new FileReader(propFile)) {
+        props.load(in);
+      }
+      processor.process(props, options);
+      // Processing arguments again in case properties overlaps with command line arguments.
+      processor.process(args, options);
+    }
+
     logger.atInfo().log("Start command line with options %s.", options);
 
-    FlickrClient fc = new FlickrClient(options.getFlickAppKey(), options.getFlickAppSecret());
-    fc.authenticate(new File(options.getFlickCredentialsDirectory()),
-        options.isForceToAuthenticate());
+    FlickrClient fc = new FlickrClient(options.flickrAppKey, options.flickrAppSecret);
+    fc.authenticate(appDir, options.forceAuthenticate);
 
     DestinationStorage storage =
-        new DynamicDestinationStorage(options.getDestSpec(), options.destCredentialSpec);
+        new DynamicDestinationStorage(options.destSpec, options.destCredentialSpec);
     logger.atInfo().log("Destination storage is %s.", storage);
     fc.traverseCollections(new CopyToGoogleStorageFn(fc, storage, options.getMaxFilesToCopy(),
         options.getThreads(), options.isDryRun()), "");
