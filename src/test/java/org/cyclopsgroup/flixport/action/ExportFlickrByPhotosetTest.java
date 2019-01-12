@@ -74,7 +74,7 @@ public class ExportFlickrByPhotosetTest {
 
     Photo p = new Photo();
     p.setId("some_photo");
-    p.setOriginalFormat("jpg");
+    p.setOriginalFormat("jpeg");
     PhotoList<Photo> list = new PhotoList<>();
     list.add(p);
     when(photosetsInterface.getPhotos(eq("some_set_id"), anyInt(), anyInt())).thenReturn(list);
@@ -84,7 +84,7 @@ public class ExportFlickrByPhotosetTest {
     when(photosInterface.getImageAsStream(p, Size.ORIGINAL)).thenReturn(in);
 
     newAction(SimpleExportOptions.forDestination("$s.id", "${f.id}.${f.originalFormat}")).run();
-    verify(storage).createObject("some_set_id/some_photo.jpg", "image/jpeg", in, false);
+    verify(storage).createObject("some_set_id/some_photo.jpeg", "image/jpeg", in, false);
   }
 
   @Test
