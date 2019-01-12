@@ -45,7 +45,7 @@ public class FlixportCliMain {
       try (FileReader in = new FileReader(propFile)) {
         props.load(in);
       }
-      processor.process(props, options);
+      processor.processProperties(props, options);
       // Processing arguments again in case properties overlaps with command line arguments.
       processor.process(args, options);
     }
