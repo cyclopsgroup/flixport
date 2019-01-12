@@ -7,8 +7,8 @@ import org.cyclopsgroup.jcli.annotation.Option;
 
 @Cli(name = "flixport")
 class FlixportCliOptions implements ExportOptions {
-  @Option(name = "c", longName = "credential_spec",
-      description = "Destination storage credentials file")
+  @Option(name = "c", longName = "dest_creds",
+      description = "Destination storage credentials file or spec")
   String destCredentialSpec = "";
 
   @Option(name = "p", longName = "dest_dir", description = "Directory of destination")
@@ -24,11 +24,10 @@ class FlixportCliOptions implements ExportOptions {
       description = "Log action without actually copying files")
   boolean dryRun;
 
-  @Option(name = "k", longName = "flickr_app_key", description = "Flickr application key",
-      required = true)
+  @Option(name = "k", longName = "app_key", description = "Flickr application key", required = true)
   String flickrAppKey;
 
-  @Option(name = "s", longName = "flickr_app_secret", description = "Flickr application secret",
+  @Option(name = "s", longName = "app_secret", description = "Flickr application secret",
       required = true)
   String flickrAppSecret;
 
@@ -36,7 +35,7 @@ class FlixportCliOptions implements ExportOptions {
       description = "Directory for application specific local files")
   String flixportDir = System.getProperty("user.home") + File.separatorChar + ".flixport";
 
-  @Option(name = "a", longName = "force_authenticate", description = "Force to authenticate")
+  @Option(name = "a", longName = "force_auth", description = "Force to authenticate")
   boolean forceAuthenticate = false;
 
   @Option(name = "m", longName = "max_files", description = "Max number of files to copy")
