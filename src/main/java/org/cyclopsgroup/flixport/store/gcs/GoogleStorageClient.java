@@ -1,47 +1,29 @@
 package org.cyclopsgroup.flixport.store.gcs;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import com.google.api.client.util.Preconditions;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.Storage.BlobListOption;
-import com.google.cloud.storage.StorageOptions;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import com.google.common.flogger.FluentLogger;
 
 public class GoogleStorageClient implements DestinationStorage {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
-
-  private static StorageOptions createOptions(@Nullable File credentials) throws IOException {
-    if (credentials == null) {
-      return StorageOptions.getDefaultInstance();
-    }
-    try (FileInputStream in = new FileInputStream(credentials)) {
-      GoogleCredentials creds = GoogleCredentials.fromStream(in)
-          .createScoped(ImmutableList.of("https://www.googleapis.com/auth/cloud-platform"));
-      return StorageOptions.newBuilder().setCredentials(creds).build();
-    }
-  }
-
   private final String bucketName;
   private final String prefix;
   private final Storage storage;
 
-  GoogleStorageClient(String bucketName, String prefix, @Nullable File credentials)
-      throws IOException {
-    this.storage = createOptions(credentials).getService();
-    this.bucketName = bucketName;
+  GoogleStorageClient(String bucketName, String prefix, Storage storage) throws IOException {
+    this.storage = Preconditions.checkNotNull(storage, "GCS storage can't be null.");
+    this.bucketName = Preconditions.checkNotNull(bucketName, "Bucket name can't be null");
     this.prefix = prefix;
   }
 

@@ -1,21 +1,13 @@
 package org.cyclopsgroup.flixport.action;
 
-import com.google.auto.value.AutoValue;
+public interface ExportOptions {
+  String getDestinationDirectory();
 
-@AutoValue
-public abstract class ExportOptions {
-  public static ExportOptions of(String destDir, String destFileName, int maxFiles, int threads,
-      boolean dryRun) {
-    return new AutoValue_ExportOptions(destDir, destFileName, maxFiles, threads, dryRun);
-  }
+  String getDestinationFileName();
 
-  public abstract String getDestinationDirectory();
+  int getMaxFilesToExport();
 
-  public abstract String getDestinationFileName();
+  int getThreads();
 
-  public abstract int getMaxFilesToExport();
-
-  public abstract int getThreads();
-
-  public abstract boolean isDryRun();
+  boolean isDryRun();
 }

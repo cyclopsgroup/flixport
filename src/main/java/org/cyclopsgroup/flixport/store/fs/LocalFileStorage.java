@@ -15,6 +15,7 @@ import com.google.common.flogger.FluentLogger;
 
 public class LocalFileStorage implements DestinationStorage {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+  private static final String TEMP_SUFFIX = ".tmp";
 
   private static File assureDirectory(File directory, boolean dryRun) {
     if (directory.isDirectory()) {
@@ -43,12 +44,17 @@ public class LocalFileStorage implements DestinationStorage {
       throws IOException {
     File destFile = new File(rootDirectory, path).getAbsoluteFile();
     assureDirectory(destFile.getParentFile(), dryRun);
-    logger.atInfo().log("Copying %s content to local file %s.", destFile);
+    logger.atInfo().log("Copying %s content to local file %s.", mimeType, destFile);
     if (dryRun) {
       logger.atInfo().log("Skip actual copying since it's dry run.");
       return;
     }
-    Files.copy(content, destFile.toPath());
+    File tempFile = new File(destFile.getAbsolutePath() + TEMP_SUFFIX);
+    if (tempFile.isFile() && !tempFile.delete()) {
+      logger.atWarning().log("Couldn't delete the pre-existing temp file %s.", tempFile);
+    }
+    Files.copy(content, tempFile.toPath());
+    Files.move(tempFile.toPath(), destFile.toPath());
   }
 
   @VisibleForTesting
@@ -63,6 +69,6 @@ public class LocalFileStorage implements DestinationStorage {
       return Collections.emptySet();
     }
     return Arrays.asList(directory.listFiles(File::isFile)).stream().map(f -> f.getName())
-        .collect(Collectors.toSet());
+        .filter(n -> !n.endsWith(TEMP_SUFFIX)).collect(Collectors.toSet());
   }
 }
