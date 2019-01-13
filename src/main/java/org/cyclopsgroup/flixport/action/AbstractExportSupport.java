@@ -100,7 +100,7 @@ class AbstractExportSupport implements AutoCloseable {
     }
 
     String destDir =
-        evaluateString(options.getDestinationDirectory(), ImmutableMap.of("s", set), "destDir");
+        evaluateString(options.getDestDir(), ImmutableMap.of("s", set), "destDir");
     Set<String> existingFileNames = storage.listObjects(destDir);
     logger.atInfo().log("Found %s files in destination of set %s, %s.", existingFileNames.size(),
         set.getTitle(), destDir);
@@ -122,7 +122,7 @@ class AbstractExportSupport implements AutoCloseable {
     Map<String, Photo> photosToExport = new HashMap<>();
     for (Photo photo : allPhotos) {
       String fileName =
-          evaluateString(options.getDestinationFileName(), ImmutableMap.of("f", photo), "destFile");
+          evaluateString(options.getDestFileName(), ImmutableMap.of("f", photo), "destFile");
       if (!existingFileNames.contains(fileName)) {
         photosToExport.put(fileName, photo);
       }

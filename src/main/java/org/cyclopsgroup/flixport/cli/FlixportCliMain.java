@@ -49,7 +49,7 @@ public class FlixportCliMain {
       // Processing arguments again in case properties overlaps with command line arguments.
       processor.process(args, options);
     }
-    Preconditions.checkNotNull(options.destSpec, "Destination must be specified.");
+    Preconditions.checkNotNull(options.getDestSpec(), "Destination must be specified.");
 
     logger.atInfo().log("Start command line with options %s.", options);
 
@@ -57,8 +57,7 @@ public class FlixportCliMain {
     FlickrClient fc = new FlickrClient(flickr);
     fc.authenticate(appDir, options.forceAuthenticate);
 
-    DestinationStorage storage =
-        new DynamicDestinationStorage(options.destSpec, options.destCredentialSpec);
+    DestinationStorage storage = new DynamicDestinationStorage(options);
     logger.atInfo().log("Destination storage is %s.", storage);
     try (ExportFlickrByPhotoset action = new ExportFlickrByPhotoset(flickr, storage, options)) {
       action.run();

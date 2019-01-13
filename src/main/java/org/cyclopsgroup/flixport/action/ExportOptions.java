@@ -1,9 +1,9 @@
 package org.cyclopsgroup.flixport.action;
 
 public interface ExportOptions {
-  String getDestinationDirectory();
+  String getDestDir();
 
-  String getDestinationFileName();
+  String getDestFileName();
 
   int getMaxFilesToExport();
 

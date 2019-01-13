@@ -4,6 +4,7 @@ import static com.google.common.truth.Truth.assertThat;
 import java.io.IOException;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import org.cyclopsgroup.flixport.store.PrefixedDestinationStorage;
+import org.cyclopsgroup.flixport.store.SimpleDestinationStorageOptions;
 import org.junit.Test;
 
 public class GoogleStorageFactoryTest {
@@ -25,21 +26,21 @@ public class GoogleStorageFactoryTest {
 
   @Test
   public void testWithoutPrefix() throws IOException {
-    verifyStorageWithoutPrefix("somewhere",
-        new GoogleStorageFactory().createStorage("gs:somewhere", null));
-    verifyStorageWithoutPrefix("somewhere",
-        new GoogleStorageFactory().createStorage("gs:somewhere/", null));
-    verifyStorageWithoutPrefix("some-where",
-        new GoogleStorageFactory().createStorage("gs:some-where", null));
+    verifyStorageWithoutPrefix("somewhere", new GoogleStorageFactory()
+        .createStorage(SimpleDestinationStorageOptions.forSpec("gs:somewhere")));
+    verifyStorageWithoutPrefix("somewhere", new GoogleStorageFactory()
+        .createStorage(SimpleDestinationStorageOptions.forSpec("gs:somewhere/")));
+    verifyStorageWithoutPrefix("some-where", new GoogleStorageFactory()
+        .createStorage(SimpleDestinationStorageOptions.forSpec("gs:some-where")));
   }
 
   @Test
   public void testWithPath() throws IOException {
-    verifyStorageWithPrefix("somewhere", "a/b",
-        new GoogleStorageFactory().createStorage("gs:somewhere/a/b", null));
-    verifyStorageWithPrefix("somewhere", "a",
-        new GoogleStorageFactory().createStorage("gs:somewhere/a", null));
-    verifyStorageWithPrefix("somewhere", "a-b",
-        new GoogleStorageFactory().createStorage("gs:somewhere/a-b", null));
+    verifyStorageWithPrefix("somewhere", "a/b", new GoogleStorageFactory()
+        .createStorage(SimpleDestinationStorageOptions.forSpec("gs:somewhere/a/b")));
+    verifyStorageWithPrefix("somewhere", "a", new GoogleStorageFactory()
+        .createStorage(SimpleDestinationStorageOptions.forSpec("gs:somewhere/a")));
+    verifyStorageWithPrefix("somewhere", "a-b", new GoogleStorageFactory()
+        .createStorage(SimpleDestinationStorageOptions.forSpec("gs:somewhere/a-b")));
   }
 }

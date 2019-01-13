@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import org.cyclopsgroup.flixport.store.DestinationStorageFactory;
+import org.cyclopsgroup.flixport.store.DestinationStorageOptions;
 import org.cyclopsgroup.flixport.store.PrefixedDestinationStorage;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.StorageOptions;
@@ -32,17 +33,17 @@ public class GoogleStorageFactory extends DestinationStorageFactory {
   }
 
   @Override
-  public DestinationStorage createStorage(String storageSpec, @Nullable String credentialSpec)
-      throws IOException {
+  public DestinationStorage createStorage(DestinationStorageOptions options) throws IOException {
+    String storageSpec = options.getDestSpec();
     Matcher m = GCS_SPEC.matcher(storageSpec);
     Preconditions.checkArgument(m.matches() && m.groupCount() == 5,
         "Input %s isn't a valid GCS path", storageSpec);
-    StorageOptions options =
-        Strings.isNullOrEmpty(credentialSpec) ? StorageOptions.getDefaultInstance()
-            : createOptions(new File(credentialSpec));
+    StorageOptions gcsOptions = Strings.isNullOrEmpty(options.getDestCredentialsFile())
+        ? StorageOptions.getDefaultInstance()
+        : createOptions(new File(options.getDestCredentialsFile()));
     String prefix = m.group(4);
     return PrefixedDestinationStorage
-        .decorate(new GoogleStorageClient(m.group(1), options.getService()), prefix);
+        .decorate(new GoogleStorageClient(m.group(1), gcsOptions.getService()), prefix);
   }
 
   @Override

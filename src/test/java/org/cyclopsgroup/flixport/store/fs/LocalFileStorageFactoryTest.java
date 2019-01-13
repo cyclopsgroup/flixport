@@ -4,6 +4,7 @@ import static com.google.common.truth.Truth.assertThat;
 import java.io.File;
 import org.apache.commons.lang3.SystemUtils;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
+import org.cyclopsgroup.flixport.store.SimpleDestinationStorageOptions;
 import org.junit.Test;
 
 public class LocalFileStorageFactoryTest {
@@ -14,13 +15,14 @@ public class LocalFileStorageFactoryTest {
 
   @Test
   public void testWithEmptyPath() {
-    verifyStorage(new File(""), new LocalFileStorageFactory().createStorage("file:", null));
+    verifyStorage(new File(""), new LocalFileStorageFactory()
+        .createStorage(SimpleDestinationStorageOptions.forSpec("file:")));
   }
 
   @Test
   public void testWithTempFile() {
     File tempDir = SystemUtils.getJavaIoTmpDir();
-    verifyStorage(tempDir,
-        new LocalFileStorageFactory().createStorage("file:" + tempDir.getAbsolutePath(), null));
+    verifyStorage(tempDir, new LocalFileStorageFactory().createStorage(
+        SimpleDestinationStorageOptions.forSpec("file:" + tempDir.getAbsolutePath())));
   }
 }
