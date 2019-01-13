@@ -12,8 +12,14 @@
   <version>1.0.0-SNAPSHOT</version>
   <properties>
     <com.google.flogger.version>0.3.1</com.google.flogger.version>
+    <com.amazonaws.sdk.version>1.11.482</com.amazonaws.sdk.version>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-s3</artifactId>
+      <version>${com.amazonaws.sdk.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.google.flogger</groupId>
       <artifactId>flogger</artifactId>

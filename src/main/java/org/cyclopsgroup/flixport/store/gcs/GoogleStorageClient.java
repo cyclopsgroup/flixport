@@ -18,29 +18,27 @@ import com.google.common.flogger.FluentLogger;
 public class GoogleStorageClient implements DestinationStorage {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   private final String bucketName;
-  private final String prefix;
   private final Storage storage;
 
-  GoogleStorageClient(String bucketName, String prefix, Storage storage) throws IOException {
+  GoogleStorageClient(String bucketName, Storage storage) throws IOException {
     this.storage = Preconditions.checkNotNull(storage, "GCS storage can't be null.");
     this.bucketName = Preconditions.checkNotNull(bucketName, "Bucket name can't be null");
-    this.prefix = prefix;
   }
 
   @SuppressWarnings("deprecation")
   @Override
   public void createObject(String path, String mimeType, InputStream in, boolean dryRun) {
     Preconditions.checkNotNull(in, "Input content can't be null.");
-    String location = prefix + Preconditions.checkNotNull(path, "Path can't be null.");
+    Preconditions.checkNotNull(path, "Path can't be null.");
     logger.atInfo().log("Storing %s content to location %s.",
-        Preconditions.checkNotNull(mimeType, "Mime type can't be null."), location);
+        Preconditions.checkNotNull(mimeType, "Mime type can't be null."), path);
     if (dryRun) {
       logger.atInfo().log("Skip actual copying of %s file to %s since it's dry run.", mimeType,
           path);
       return;
     }
     storage.create(
-        BlobInfo.newBuilder(BlobId.of(bucketName, location)).setContentType(mimeType).build(), in);
+        BlobInfo.newBuilder(BlobId.of(bucketName, path)).setContentType(mimeType).build(), in);
   }
 
   @VisibleForTesting
@@ -48,16 +46,11 @@ public class GoogleStorageClient implements DestinationStorage {
     return bucketName;
   }
 
-  @VisibleForTesting
-  String getPrefix() {
-    return prefix;
-  }
-
   @Override
   public Set<String> listObjects(String path) {
     return StreamSupport
-        .stream(storage.list(bucketName, BlobListOption.prefix(prefix + path)).iterateAll()
-            .spliterator(), false)
+        .stream(storage.list(bucketName, BlobListOption.prefix(path)).iterateAll().spliterator(),
+            false)
         .map(b -> new File(b.getName()).getName()).collect(Collectors.toSet());
   }
 }

@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import org.cyclopsgroup.flixport.store.DestinationStorageFactory;
+import org.cyclopsgroup.flixport.store.PrefixedDestinationStorage;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.StorageOptions;
 import com.google.common.base.Preconditions;
@@ -39,8 +40,9 @@ public class GoogleStorageFactory extends DestinationStorageFactory {
     StorageOptions options =
         Strings.isNullOrEmpty(credentialSpec) ? StorageOptions.getDefaultInstance()
             : createOptions(new File(credentialSpec));
-    return new GoogleStorageClient(m.group(1), Strings.nullToEmpty(m.group(4)),
-        options.getService());
+    String prefix = m.group(4);
+    return PrefixedDestinationStorage
+        .decorate(new GoogleStorageClient(m.group(1), options.getService()), prefix);
   }
 
   @Override

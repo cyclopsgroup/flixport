@@ -29,15 +29,15 @@ public class GoogleStorageClientTest {
 
   @Before
   public void setUp() throws IOException {
-    client = new GoogleStorageClient("bucket", "something", storage);
+    client = new GoogleStorageClient("bucket", storage);
   }
 
   @Test
   public void testListObjects() {
-    when(storage.list("bucket", BlobListOption.prefix("something/a/b"))).thenReturn(returnedPage);
+    when(storage.list("bucket", BlobListOption.prefix("a/b"))).thenReturn(returnedPage);
     when(returnedPage.iterateAll()).thenReturn(ImmutableList.of(returnedBlob, returnedBlob));
     when(returnedBlob.getName()).thenReturn("f1.txt", "f2.txt");
-    assertThat(client.listObjects("/a/b")).containsExactly("f1.txt", "f2.txt");
+    assertThat(client.listObjects("a/b")).containsExactly("f1.txt", "f2.txt");
   }
 
   @After
