@@ -99,8 +99,7 @@ class AbstractExportSupport implements AutoCloseable {
       return;
     }
 
-    String destDir =
-        evaluateString(options.getDestDir(), ImmutableMap.of("s", set), "destDir");
+    String destDir = evaluateString(options.getDestDir(), ImmutableMap.of("s", set), "destDir");
     Set<String> existingFileNames = storage.listObjects(destDir);
     logger.atInfo().log("Found %s files in destination of set %s, %s.", existingFileNames.size(),
         set.getTitle(), destDir);

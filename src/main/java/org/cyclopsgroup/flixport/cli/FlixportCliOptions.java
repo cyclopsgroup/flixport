@@ -9,14 +9,21 @@ import org.cyclopsgroup.jcli.annotation.Option;
 
 @Cli(name = "flixport")
 class FlixportCliOptions implements ExportOptions, DestinationStorageOptions {
-  @Option(name = "x", longName = "aws_key", description = "AWS credentials key")
+  @Option(name = "y", longName = "aws_key", description = "AWS credentials key")
+  @Nullable
   private String awsKey;
 
+  @Option(name = "n", longName = "aws_region", description = "AWS region")
+  @Nullable
+  private String awsRegion;
+
   @Option(name = "z", longName = "aws_secret", description = "AWS credentials secret")
+  @Nullable
   private String awsSecret;
 
   @Option(name = "c", longName = "dest_creds", displayName = "file",
       description = "Destination storage credentials file or spec")
+  @Nullable
   private String destCredentialsFile = "";
 
   @Option(name = "p", longName = "dest_dir", displayName = "dir",
@@ -63,6 +70,12 @@ class FlixportCliOptions implements ExportOptions, DestinationStorageOptions {
   @Nullable
   public String getAwsKey() {
     return awsKey;
+  }
+
+  @Override
+  @Nullable
+  public String getAwsRegion() {
+    return awsRegion;
   }
 
   @Override

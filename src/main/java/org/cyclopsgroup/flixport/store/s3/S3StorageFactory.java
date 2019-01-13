@@ -11,6 +11,8 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.PropertiesFileCredentialsProvider;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.api.client.util.Strings;
 import com.google.common.base.Preconditions;
@@ -42,8 +44,11 @@ public class S3StorageFactory extends DestinationStorageFactory {
       throw new IllegalStateException(
           "Please specify AWS credentials with a file or command line options.");
     }
-    return PrefixedDestinationStorage.decorate(new S3StorageClient(
-        AmazonS3ClientBuilder.standard().withCredentials(creds).build(), m.group(1)), prefix);
+    Regions region = Strings.isNullOrEmpty(options.getAwsRegion()) ? Regions.US_EAST_1
+        : Regions.fromName(options.getAwsRegion());
+    AmazonS3 s3 =
+        AmazonS3ClientBuilder.standard().withCredentials(creds).withRegion(region).build();
+    return PrefixedDestinationStorage.decorate(new S3StorageClient(s3, m.group(1)), prefix);
   }
 
   @Override

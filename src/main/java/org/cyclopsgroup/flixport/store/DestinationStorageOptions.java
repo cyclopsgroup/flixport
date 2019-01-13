@@ -6,6 +6,8 @@ public interface DestinationStorageOptions {
   @Nullable
   String getAwsKey();
 
+  String getAwsRegion();
+
   @Nullable
   String getAwsSecret();
 
