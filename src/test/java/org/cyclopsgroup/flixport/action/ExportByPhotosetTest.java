@@ -32,7 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ExportFlickrByPhotosetTest {
+public class ExportByPhotosetTest {
   private static final Auth authWithUser = new Auth();
   private static final String USER_ID = "user_xyz";
 
@@ -53,8 +53,8 @@ public class ExportFlickrByPhotosetTest {
   @Mock
   private DestinationStorage storage;
 
-  private ExportFlickrByPhotoset newAction(ExportOptions options) {
-    return new ExportFlickrByPhotoset(flickr, storage, options);
+  private ExportByPhotoset newAction(ExportOptions options) {
+    return new ExportByPhotoset(flickr, storage, options);
   }
 
   @Before
@@ -108,6 +108,6 @@ public class ExportFlickrByPhotosetTest {
 
   @After
   public void verifyInvocations() {
-    verifyNoMoreInteractions(ignoreStubs(storage, flickr, photosetsInterface));
+    verifyNoMoreInteractions(ignoreStubs(storage, flickr, photosetsInterface, photosInterface));
   }
 }

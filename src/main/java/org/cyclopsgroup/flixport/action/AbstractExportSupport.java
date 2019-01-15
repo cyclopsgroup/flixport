@@ -27,14 +27,16 @@ import com.flickr4java.flickr.photos.PhotoList;
 import com.flickr4java.flickr.photos.Size;
 import com.flickr4java.flickr.photosets.Photoset;
 import com.google.api.client.util.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.flogger.FluentLogger;
 import com.google.common.util.concurrent.MoreExecutors;
 
-class AbstractExportSupport implements AutoCloseable {
+abstract class AbstractExportSupport implements AutoCloseable {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   static final int PAGE_SIZE = 250;
+  final String destDir;
   private final Executor executor;
   final Flickr flickr;
   final ExportOptions options;
@@ -55,6 +57,8 @@ class AbstractExportSupport implements AutoCloseable {
       executor = new ThreadPoolExecutor(options.getThreads(), options.getThreads(), 0,
           TimeUnit.SECONDS, taskQueue, new ThreadPoolExecutor.CallerRunsPolicy());
     }
+    this.destDir =
+        Strings.isNullOrEmpty(options.getDestDir()) ? getDefaultDestDir() : options.getDestDir();
   }
 
   @Override
@@ -91,7 +95,7 @@ class AbstractExportSupport implements AutoCloseable {
     }
   }
 
-  void exportPhotoset(Photoset set) throws FlickrException {
+  void exportPhotoset(Photoset set, ImmutableMap<String, Object> params) throws FlickrException {
     if (isFileLimitBreached()) {
       logger.atInfo().log(
           "Ignoring photoset %s since number of exported photo breaches the limit %s.",
@@ -99,7 +103,9 @@ class AbstractExportSupport implements AutoCloseable {
       return;
     }
 
-    String destDir = evaluateString(options.getDestDir(), ImmutableMap.of("s", set), "destDir");
+    ImmutableMap<String, Object> setParams =
+        ImmutableMap.<String, Object>builder().putAll(params).put("s", set).build();
+    String destDir = evaluateString(options.getDestDir(), setParams, "destDir");
     Set<String> existingFileNames = storage.listObjects(destDir);
     logger.atInfo().log("Found %s files in destination of set %s, %s.", existingFileNames.size(),
         set.getTitle(), destDir);
@@ -142,6 +148,8 @@ class AbstractExportSupport implements AutoCloseable {
           e.getValue().getTitle(), destFile);
     }
   }
+
+  abstract String getDefaultDestDir();
 
   boolean isFileLimitBreached() {
     return photoCount.get() > options.getMaxFilesToExport();

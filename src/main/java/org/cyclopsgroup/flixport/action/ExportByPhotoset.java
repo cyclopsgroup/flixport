@@ -5,13 +5,23 @@ import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.photosets.Photoset;
 import com.flickr4java.flickr.photosets.Photosets;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.flogger.FluentLogger;
 
-public class ExportFlickrByPhotoset extends AbstractExportSupport implements FlickrAction {
+/**
+ * Exports photos by scanning through all photosets and dump photos based on photoset identifiers in
+ * directory.
+ */
+public class ExportByPhotoset extends AbstractExportSupport implements AutoFlickrAction {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
-  public ExportFlickrByPhotoset(Flickr flickr, DestinationStorage storage, ExportOptions options) {
+  public ExportByPhotoset(Flickr flickr, DestinationStorage storage, ExportOptions options) {
     super(flickr, storage, options);
+  }
+
+  @Override
+  String getDefaultDestDir() {
+    return "/${s.title}";
   }
 
   @Override
@@ -30,7 +40,7 @@ public class ExportFlickrByPhotoset extends AbstractExportSupport implements Fli
       for (Photoset set : sets.getPhotosets()) {
         logger.atInfo().log("Found photoset %s and submitting a job to export it.", set.getTitle());
         submitJob(() -> {
-          exportPhotoset(set);
+          exportPhotoset(set, ImmutableMap.of());
         }, "export set %s", set.getTitle());
       }
       if (sets.getPhotosets().size() < PAGE_SIZE) {

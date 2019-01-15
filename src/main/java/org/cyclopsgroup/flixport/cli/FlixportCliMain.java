@@ -2,14 +2,14 @@ package org.cyclopsgroup.flixport.cli;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Properties;
-import org.cyclopsgroup.flixport.action.ExportFlickrByPhotoset;
+import org.cyclopsgroup.flixport.action.AutoFlickrAction;
+import org.cyclopsgroup.flixport.action.ExportByCollectionAndSet;
+import org.cyclopsgroup.flixport.action.ExportByPhotoset;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import org.cyclopsgroup.jcli.ArgumentProcessor;
 import com.flickr4java.flickr.Flickr;
-import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.REST;
 import com.google.common.base.Preconditions;
 import com.google.common.flogger.FluentLogger;
@@ -17,7 +17,7 @@ import com.google.common.flogger.FluentLogger;
 public class FlixportCliMain {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
-  public static void main(String[] args) throws IOException, FlickrException, InterruptedException {
+  public static void main(String[] args) throws Exception {
     FlixportCliOptions options = new FlixportCliOptions();
     ArgumentProcessor<FlixportCliOptions> processor =
         ArgumentProcessor.forType(FlixportCliOptions.class);
@@ -59,7 +59,9 @@ public class FlixportCliMain {
 
     DestinationStorage storage = new DynamicDestinationStorage(options);
     logger.atInfo().log("Destination storage is %s.", storage);
-    try (ExportFlickrByPhotoset action = new ExportFlickrByPhotoset(flickr, storage, options)) {
+    try (AutoFlickrAction action =
+        options.byCollection ? new ExportByCollectionAndSet(flickr, storage, options)
+            : new ExportByPhotoset(flickr, storage, options)) {
       action.run();
     }
   }
