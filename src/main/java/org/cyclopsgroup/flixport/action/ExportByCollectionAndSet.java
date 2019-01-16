@@ -1,6 +1,9 @@
 package org.cyclopsgroup.flixport.action;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import com.flickr4java.flickr.Flickr;
@@ -26,27 +29,38 @@ public class ExportByCollectionAndSet extends AbstractExportSupport implements A
   @Override
   public void run() throws FlickrException, IOException {
     String userId = flickr.getAuth().getUser().getId();
-    for (Collection collection : flickr.getCollectionsInterface().getTree(null, userId)) {
-      submitJob(() -> traverseCollection(collection, userId), "traverse collection %s",
-          collection.getTitle());
+    List<Collection> collections =
+        new ArrayList<>(flickr.getCollectionsInterface().getTree(null, userId));
+    Collections.sort(collections, Comparator.comparing(Collection::getTitle));
+    for (Collection c : collections) {
+      submitJob(() -> traverseCollection(c, userId), "traverse collection %s", c.getTitle());
     }
   }
 
   private void traverseCollection(Collection collection, String userId) throws FlickrException {
-    List<Collection> children =
-        flickr.getCollectionsInterface().getTree(collection.getId(), userId);
-    if (!children.isEmpty()) {
+    if (isFileLimitBreached()) {
+      logger.atInfo().log("Max number of files were exported, ignore collection %s.",
+          collection.getTitle());
+      return;
+    }
+    if (!collection.getCollections().isEmpty()) {
+      List<Collection> children = new ArrayList<>(collection.getCollections());
+      Collections.sort(children, Comparator.comparing(Collection::getTitle));
       for (Collection child : children) {
         submitJob(() -> traverseCollection(child, userId), "traverse collection %s",
             child.getTitle());
       }
-      logger.atInfo().log("Not processing sets in collection %s since it has children collections.",
-          collection.getTitle());
+      logger.atInfo().log("Not processing non-leaf collection %s.", collection.getTitle());
       return;
     }
     ImmutableMap<String, Object> params = ImmutableMap.of("c", collection);
-    for (Photoset set : flickr.getCollectionsInterface().getInfo(collection.getId())
-        .getPhotosets()) {
+    List<Photoset> sets = new ArrayList<>(collection.getPhotosets());
+    if (sets.isEmpty()) {
+      logger.atWarning().log("Leaf collection %s is empty, ignore it.", collection.getTitle());
+      return;
+    }
+    Collections.sort(sets, Comparator.comparing(Photoset::getTitle));
+    for (Photoset set : sets) {
       submitJob(() -> exportPhotoset(set, params), "export set %s", set.getTitle());
     }
   }

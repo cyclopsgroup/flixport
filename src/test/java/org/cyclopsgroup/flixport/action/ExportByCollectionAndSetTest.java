@@ -45,17 +45,13 @@ public class ExportByCollectionAndSetTest {
     when(flickr.getAuth()).thenReturn(authWithUser);
     when(flickr.getCollectionsInterface()).thenReturn(collectionsInterface);
     action = new ExportByCollectionAndSet(flickr, storage,
-        SimpleExportOptions.forDestination("$c.id/$s.id", "$f.id"));
+        SimpleExportOptions.forDestination(null, "$f.id"));
   }
 
   @Test
   public void test() throws FlickrException, IOException {
     when(collectionsInterface.getTree(null, USER_ID))
         .thenReturn(ImmutableList.of(newCollection("a")));
-    when(collectionsInterface.getTree("a", USER_ID))
-        .thenReturn(ImmutableList.of(newCollection("b")));
-    when(collectionsInterface.getTree("b", USER_ID)).thenReturn(ImmutableList.of());
-    when(collectionsInterface.getInfo("b")).thenReturn(newCollection("b"));
     action.run();
   }
 

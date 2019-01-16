@@ -10,10 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,17 +47,18 @@ abstract class AbstractExportSupport implements AutoCloseable {
     this.flickr = Preconditions.checkNotNull(flickr);
     this.storage = Preconditions.checkNotNull(storage);
     this.options = Preconditions.checkNotNull(options);
-    BlockingQueue<Runnable> taskQueue = new ArrayBlockingQueue<Runnable>(20);
     if (options.getThreads() == 1) {
       logger.atInfo().log("Will run in single-thread mode.");
       executor = MoreExecutors.directExecutor();
     } else {
       logger.atInfo().log("Will run in %s threads.", options.getThreads());
-      executor = new ThreadPoolExecutor(options.getThreads(), options.getThreads(), 0,
-          TimeUnit.SECONDS, taskQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+      executor =
+          new ThreadPoolExecutor(options.getThreads(), options.getThreads(), 0, TimeUnit.SECONDS,
+              new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.CallerRunsPolicy());
     }
     this.destDir =
         Strings.isNullOrEmpty(options.getDestDir()) ? getDefaultDestDir() : options.getDestDir();
+    logger.atInfo().log("Destination file path is %s.", destDir);
   }
 
   @Override
@@ -96,6 +96,11 @@ abstract class AbstractExportSupport implements AutoCloseable {
   }
 
   void exportPhotoset(Photoset set, ImmutableMap<String, Object> params) throws FlickrException {
+    exportPhotosetInternally(set, params, 0);
+  }
+
+  private void exportPhotosetInternally(Photoset set, ImmutableMap<String, Object> params,
+      int tries) throws FlickrException {
     if (isFileLimitBreached()) {
       logger.atInfo().log(
           "Ignoring photoset %s since number of exported photo breaches the limit %s.",
@@ -105,10 +110,10 @@ abstract class AbstractExportSupport implements AutoCloseable {
 
     ImmutableMap<String, Object> setParams =
         ImmutableMap.<String, Object>builder().putAll(params).put("s", set).build();
-    String destDir = evaluateString(options.getDestDir(), setParams, "destDir");
-    Set<String> existingFileNames = storage.listObjects(destDir);
+    String fullDestDir = evaluateString(this.destDir, setParams, "destDir");
+    Set<String> existingFileNames = storage.listObjects(fullDestDir);
     logger.atInfo().log("Found %s files in destination of set %s, %s.", existingFileNames.size(),
-        set.getTitle(), destDir);
+        set.getTitle(), fullDestDir);
 
     List<Photo> allPhotos = new ArrayList<>();
     for (int i = 0;; i++) {
@@ -143,7 +148,7 @@ abstract class AbstractExportSupport implements AutoCloseable {
     }
 
     for (Map.Entry<String, Photo> e : photosToExport.entrySet()) {
-      String destFile = destDir + "/" + e.getKey();
+      String destFile = fullDestDir + "/" + e.getKey();
       submitJob(() -> exportFile(e.getValue(), destFile), "export photo %s to %s",
           e.getValue().getTitle(), destFile);
     }
@@ -156,11 +161,13 @@ abstract class AbstractExportSupport implements AutoCloseable {
   }
 
   void submitJob(FlickrAction action, String format, Object... args) {
+    String actionName = String.format(format, args);
     executor.execute(() -> {
+      logger.atInfo().log("Starting action %s.", actionName);
       try {
         action.run();
       } catch (FlickrException | IOException e) {
-        String actionName = String.format(format, args);
+
         logger.atSevere().withCause(e).log("Action %s failed: %s.", actionName, e.getMessage());
         throw new RuntimeException("Can't execute action [" + actionName + "]: " + action, e);
       }

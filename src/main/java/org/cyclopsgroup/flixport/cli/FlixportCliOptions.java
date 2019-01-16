@@ -21,7 +21,7 @@ class FlixportCliOptions implements ExportOptions, DestinationStorageOptions {
   @Nullable
   private String awsSecret;
 
-  @Option(name = "w", longName = "by_collection", description = "Nexted output by colleciton")
+  @Option(name = "w", longName = "by_collection", description = "Nested output by collection")
   boolean byCollection;
 
   @Option(name = "c", longName = "dest_creds", displayName = "file",
@@ -32,7 +32,7 @@ class FlixportCliOptions implements ExportOptions, DestinationStorageOptions {
   @Option(name = "p", longName = "dest_dir", displayName = "dir",
       description = "Directory of destination")
   @Nullable
-  private String destDir = "/${s.title}";
+  private String destDir;
 
   @Option(name = "n", longName = "dest_file_name", displayName = "format", required = true,
       description = "File name of the output file")
