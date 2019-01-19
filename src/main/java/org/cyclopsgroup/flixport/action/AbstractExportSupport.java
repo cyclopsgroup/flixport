@@ -33,12 +33,12 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 
 abstract class AbstractExportSupport implements AutoCloseable {
-  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
-  static final int PAGE_SIZE = 250;
-
   private interface ActionExecutor {
     Future<Boolean> submitJob(FlickrAction action) throws FlickrException, IOException;
   }
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
+  static final int PAGE_SIZE = 250;
 
   final String destDir;
   private final ActionExecutor executor;
