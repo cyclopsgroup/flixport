@@ -1,5 +1,6 @@
 package org.cyclopsgroup.flixport.action;
 
+import java.io.IOException;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
@@ -25,7 +26,7 @@ public class ExportByPhotoset extends AbstractExportSupport implements AutoFlick
   }
 
   @Override
-  public void run() throws FlickrException {
+  public void run() throws IOException, FlickrException {
     String userId = flickr.getAuth().getUser().getId();
     for (int i = 0;; i++) {
       Photosets sets = flickr.getPhotosetsInterface().getList(userId, PAGE_SIZE, i, null);

@@ -27,7 +27,7 @@ public class ExportByCollectionAndSet extends AbstractExportSupport implements A
   }
 
   @Override
-  public void run() throws FlickrException, IOException {
+  public void run() throws IOException, FlickrException {
     String userId = flickr.getAuth().getUser().getId();
     List<Collection> collections =
         new ArrayList<>(flickr.getCollectionsInterface().getTree(null, userId));
@@ -37,7 +37,8 @@ public class ExportByCollectionAndSet extends AbstractExportSupport implements A
     }
   }
 
-  private void traverseCollection(Collection collection, String userId) throws FlickrException {
+  private void traverseCollection(Collection collection, String userId)
+      throws IOException, FlickrException {
     if (isFileLimitBreached()) {
       logger.atInfo().log("Max number of files were exported, ignore collection %s.",
           collection.getTitle());

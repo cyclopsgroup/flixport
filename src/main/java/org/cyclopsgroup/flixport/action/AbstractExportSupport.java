@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -29,14 +29,19 @@ import com.google.api.client.util.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.flogger.FluentLogger;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 
 abstract class AbstractExportSupport implements AutoCloseable {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
-
   static final int PAGE_SIZE = 250;
+
+  private interface ActionExecutor {
+    Future<Boolean> submitJob(FlickrAction action) throws FlickrException, IOException;
+  }
+
   final String destDir;
-  private final Executor executor;
+  private final ActionExecutor executor;
   final Flickr flickr;
   final ExportOptions options;
   private final AtomicInteger photoCount = new AtomicInteger();
@@ -49,12 +54,30 @@ abstract class AbstractExportSupport implements AutoCloseable {
     this.options = Preconditions.checkNotNull(options);
     if (options.getThreads() == 1) {
       logger.atInfo().log("Will run in single-thread mode.");
-      executor = MoreExecutors.directExecutor();
+      executor = new ActionExecutor() {
+        public Future<Boolean> submitJob(FlickrAction action) throws FlickrException, IOException {
+          action.run();
+          return Futures.immediateFuture(true);
+        }
+      };
     } else {
       logger.atInfo().log("Will run in %s threads.", options.getThreads());
-      executor =
+      ExecutorService executorService =
           new ThreadPoolExecutor(options.getThreads(), options.getThreads(), 0, TimeUnit.SECONDS,
               new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.CallerRunsPolicy());
+      executor = new ActionExecutor() {
+        public Future<Boolean> submitJob(FlickrAction action) throws FlickrException, IOException {
+          return executorService.<Boolean>submit(() -> {
+            try {
+              action.run();
+              return true;
+            } catch (Throwable e) {
+              logger.atSevere().withCause(e).log("Action failed.");
+              return false;
+            }
+          });
+        }
+      };
     }
     this.destDir =
         Strings.isNullOrEmpty(options.getDestDir()) ? getDefaultDestDir() : options.getDestDir();
@@ -95,12 +118,13 @@ abstract class AbstractExportSupport implements AutoCloseable {
     }
   }
 
-  void exportPhotoset(Photoset set, ImmutableMap<String, Object> params) throws FlickrException {
+  void exportPhotoset(Photoset set, ImmutableMap<String, Object> params)
+      throws IOException, FlickrException {
     exportPhotosetInternally(set, params, 0);
   }
 
   private void exportPhotosetInternally(Photoset set, ImmutableMap<String, Object> params,
-      int tries) throws FlickrException {
+      int tries) throws IOException, FlickrException {
     if (isFileLimitBreached()) {
       logger.atInfo().log(
           "Ignoring photoset %s since number of exported photo breaches the limit %s.",
@@ -160,17 +184,12 @@ abstract class AbstractExportSupport implements AutoCloseable {
     return photoCount.get() > options.getMaxFilesToExport();
   }
 
-  void submitJob(FlickrAction action, String format, Object... args) {
+  Future<Boolean> submitJob(FlickrAction action, String format, Object... args)
+      throws IOException, FlickrException {
     String actionName = String.format(format, args);
-    executor.execute(() -> {
+    return executor.submitJob(() -> {
       logger.atInfo().log("Starting action %s.", actionName);
-      try {
-        action.run();
-      } catch (FlickrException | IOException e) {
-
-        logger.atSevere().withCause(e).log("Action %s failed: %s.", actionName, e.getMessage());
-        throw new RuntimeException("Can't execute action [" + actionName + "]: " + action, e);
-      }
+      action.run();
     });
   }
 }
