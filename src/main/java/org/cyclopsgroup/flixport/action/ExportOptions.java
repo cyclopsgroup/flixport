@@ -8,6 +8,8 @@ public interface ExportOptions {
 
   String getDestFileName();
 
+  int getMaxAttempts();
+
   int getMaxFilesToExport();
 
   int getThreads();

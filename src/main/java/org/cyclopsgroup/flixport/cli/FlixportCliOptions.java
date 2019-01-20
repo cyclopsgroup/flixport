@@ -59,6 +59,10 @@ class FlixportCliOptions implements ExportOptions, DestinationStorageOptions {
   @Option(name = "a", longName = "force_auth", description = "Force to authenticate")
   boolean forceAuthenticate = false;
 
+  @Option(name = "e", longName = "max_attempts", displayName = "integer",
+      description = "Max number of attempts to export a photoset.")
+  private int maxAttempts = 5;
+
   @Option(name = "m", longName = "max_files", displayName = "integer",
       description = "Max number of files to copy")
   private int maxFilesToCopy = 100;
@@ -107,6 +111,11 @@ class FlixportCliOptions implements ExportOptions, DestinationStorageOptions {
   @Override
   public String getDestSpec() {
     return destSpec;
+  }
+
+  @Override
+  public int getMaxAttempts() {
+    return maxAttempts;
   }
 
   @Override

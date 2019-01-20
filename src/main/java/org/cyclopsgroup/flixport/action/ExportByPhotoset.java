@@ -40,9 +40,7 @@ public class ExportByPhotoset extends AbstractExportSupport implements AutoFlick
       }
       for (Photoset set : sets.getPhotosets()) {
         logger.atInfo().log("Found photoset %s and submitting a job to export it.", set.getTitle());
-        submitJob(() -> {
-          exportPhotoset(set, ImmutableMap.of());
-        }, "export set %s", set.getTitle());
+        exportPhotoset(set, ImmutableMap.of());
       }
       if (sets.getPhotosets().size() < PAGE_SIZE) {
         break;

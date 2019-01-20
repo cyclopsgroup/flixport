@@ -6,10 +6,11 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.SynchronousQueue;
@@ -19,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
+import com.amazonaws.endpointdiscovery.DaemonThreadFactory;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.photos.Photo;
@@ -36,6 +38,7 @@ abstract class AbstractExportSupport implements AutoCloseable {
   private interface ActionExecutor {
     Future<Boolean> submitJob(FlickrAction action) throws FlickrException, IOException;
   }
+
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   static final int PAGE_SIZE = 250;
@@ -62,11 +65,11 @@ abstract class AbstractExportSupport implements AutoCloseable {
       };
     } else {
       logger.atInfo().log("Will run in %s threads.", options.getThreads());
-      ExecutorService executorService =
-          new ThreadPoolExecutor(options.getThreads(), options.getThreads(), 0, TimeUnit.SECONDS,
-              new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.CallerRunsPolicy());
+      ExecutorService executorService = new ThreadPoolExecutor(options.getThreads(),
+          options.getThreads(), 0, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
+          DaemonThreadFactory.INSTANCE, new ThreadPoolExecutor.CallerRunsPolicy());
       executor = new ActionExecutor() {
-        public Future<Boolean> submitJob(FlickrAction action) throws FlickrException, IOException {
+        public Future<Boolean> submitJob(FlickrAction action) {
           return executorService.<Boolean>submit(() -> {
             try {
               action.run();
@@ -120,16 +123,31 @@ abstract class AbstractExportSupport implements AutoCloseable {
 
   void exportPhotoset(Photoset set, ImmutableMap<String, Object> params)
       throws IOException, FlickrException {
-    exportPhotosetInternally(set, params, 0);
+    for (int i = 0; i < options.getMaxAttempts(); i++) {
+      try {
+        if (exportPhotosetInternally(set, params)) {
+          return;
+        }
+      } catch (Throwable e) {
+        logger.atWarning().withCause(e).log("Can't export photoset %s at the %s th try.",
+            set.getTitle(), i);
+      }
+      try {
+        Thread.sleep((long) (Math.pow(1.5, i) * 200));
+      } catch (InterruptedException e) {
+        throw new RuntimeException("Sleeping thread is interrupted.", e);
+      }
+    }
+    logger.atSevere().log("Quit exporting set %s after 5 tries.", set.getTitle());
   }
 
-  private void exportPhotosetInternally(Photoset set, ImmutableMap<String, Object> params,
-      int tries) throws IOException, FlickrException {
+  private boolean exportPhotosetInternally(Photoset set, ImmutableMap<String, Object> params)
+      throws IOException, FlickrException {
     if (isFileLimitBreached()) {
       logger.atInfo().log(
           "Ignoring photoset %s since number of exported photo breaches the limit %s.",
           set.getTitle(), options.getMaxFilesToExport());
-      return;
+      return true;
     }
 
     ImmutableMap<String, Object> setParams =
@@ -141,7 +159,8 @@ abstract class AbstractExportSupport implements AutoCloseable {
 
     List<Photo> allPhotos = new ArrayList<>();
     for (int i = 0;; i++) {
-      PhotoList<Photo> list = flickr.getPhotosetsInterface().getPhotos(set.getId(), PAGE_SIZE, i);
+      String id = set.getId();
+      PhotoList<Photo> list = flickr.getPhotosetsInterface().getPhotos(id, PAGE_SIZE, i);
       if (list.isEmpty()) {
         break;
       }
@@ -153,7 +172,7 @@ abstract class AbstractExportSupport implements AutoCloseable {
       }
     }
 
-    Map<String, Photo> photosToExport = new HashMap<>();
+    Map<String, Photo> photosToExport = new TreeMap<>();
     for (Photo photo : allPhotos) {
       String fileName =
           evaluateString(options.getDestFileName(), ImmutableMap.of("f", photo), "destFile");
@@ -165,17 +184,29 @@ abstract class AbstractExportSupport implements AutoCloseable {
     if (photosToExport.isEmpty()) {
       logger.atInfo().log("All %s photos in set %s already exist in destination %s.",
           allPhotos.size(), set.getTitle(), destDir);
-      return;
+      return true;
     } else {
       logger.atInfo().log("Exporting %s out of total %s photos from set %s to destination %s.",
           photosToExport.size(), allPhotos.size(), set.getTitle(), destDir);
     }
 
-    for (Map.Entry<String, Photo> e : photosToExport.entrySet()) {
-      String destFile = fullDestDir + "/" + e.getKey();
-      submitJob(() -> exportFile(e.getValue(), destFile), "export photo %s to %s",
-          e.getValue().getTitle(), destFile);
+    List<Future<Boolean>> results = new ArrayList<>();
+    for (Map.Entry<String, Photo> entry : photosToExport.entrySet()) {
+      String destFile = fullDestDir + "/" + entry.getKey();
+      results.add(submitJob(() -> exportFile(entry.getValue(), destFile), "export photo %s to %s",
+          entry.getValue().getTitle(), destFile));
     }
+
+    boolean finalResult = true;
+    for (Future<Boolean> result : results) {
+      try {
+        finalResult &= result.get();
+      } catch (InterruptedException | ExecutionException e) {
+        logger.atSevere().withCause(e).log("Can't get result of a file export.");
+        finalResult = false;
+      }
+    }
+    return finalResult;
   }
 
   abstract String getDefaultDestDir();

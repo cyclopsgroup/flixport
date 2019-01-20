@@ -33,7 +33,7 @@ public class ExportByCollectionAndSet extends AbstractExportSupport implements A
         new ArrayList<>(flickr.getCollectionsInterface().getTree(null, userId));
     Collections.sort(collections, Comparator.comparing(Collection::getTitle));
     for (Collection c : collections) {
-      submitJob(() -> traverseCollection(c, userId), "traverse collection %s", c.getTitle());
+      traverseCollection(c, userId);
     }
   }
 
@@ -62,7 +62,7 @@ public class ExportByCollectionAndSet extends AbstractExportSupport implements A
     }
     Collections.sort(sets, Comparator.comparing(Photoset::getTitle));
     for (Photoset set : sets) {
-      submitJob(() -> exportPhotoset(set, params), "export set %s", set.getTitle());
+      exportPhotoset(set, params);
     }
   }
 }
