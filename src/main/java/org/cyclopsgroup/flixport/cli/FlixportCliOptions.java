@@ -65,7 +65,7 @@ class FlixportCliOptions implements ExportOptions, DestinationStorageOptions {
 
   @Option(name = "m", longName = "max_files", displayName = "integer",
       description = "Max number of files to copy")
-  private int maxFilesToCopy = 100;
+  private int maxFilesToCopy = Integer.MAX_VALUE;
 
   @Option(name = "h", longName = "help", description = "Show help message")
   boolean showHelp = false;
