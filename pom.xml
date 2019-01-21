@@ -10,10 +10,20 @@
   <artifactId>flixport</artifactId>
   <packaging>jar</packaging>
   <version>1.0.0-SNAPSHOT</version>
-  <properties>
-    <com.google.flogger.version>0.3.1</com.google.flogger.version>
-    <com.amazonaws.sdk.version>1.11.482</com.amazonaws.sdk.version>
-  </properties>
+  <scm>
+    <connection>scm:git:git@github.com:jiaqi/flixport.git</connection>
+    <developerConnection>scm:git:git@github.com:jiaqi/flixport.git</developerConnection>
+    <url>git@github.com:jiaqi/flixport.git</url>
+  </scm>
+  <inceptionYear>2018</inceptionYear>
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/jiaqi/flixport/issues</url>
+  </issueManagement>
+  <ciManagement>
+    <system>travis</system>
+    <url>https://travis-ci.org/jiaqi/flixport</url>
+  </ciManagement>
   <dependencies>
     <dependency>
       <groupId>com.amazonaws</groupId>
@@ -119,6 +129,21 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.7.1</version>
+      </plugin>
     </plugins>
   </build>
+  <distributionManagement>
+    <site>
+      <id>cyclopsgroup.server</id>
+      <url>s3://${dist.bucketName}/projects/flixport</url>
+    </site>
+  </distributionManagement>
+  <properties>
+    <com.google.flogger.version>0.3.1</com.google.flogger.version>
+    <com.amazonaws.sdk.version>1.11.482</com.amazonaws.sdk.version>
+  </properties>
 </project>
