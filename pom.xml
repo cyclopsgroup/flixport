@@ -9,7 +9,7 @@
   </parent>
   <artifactId>flixport</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.0.1</version>
   <scm>
     <connection>scm:git:git@github.com:jiaqi/flixport.git</connection>
     <developerConnection>scm:git:git@github.com:jiaqi/flixport.git</developerConnection>
