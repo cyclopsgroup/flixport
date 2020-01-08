@@ -4,8 +4,8 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue
 public abstract class SimpleDestinationStorageOptions implements DestinationStorageOptions {
-  public static SimpleDestinationStorageOptions forS3(String spec, String awsKey,
-      String awsSecret) {
+  public static SimpleDestinationStorageOptions forS3(
+      String spec, String awsKey, String awsSecret) {
     return new AutoValue_SimpleDestinationStorageOptions(awsKey, awsSecret, null, null, spec);
   }
 

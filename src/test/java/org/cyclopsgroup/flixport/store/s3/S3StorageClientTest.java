@@ -5,6 +5,12 @@ import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import org.junit.After;
@@ -15,28 +21,22 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.google.common.collect.ImmutableList;
 
 @RunWith(MockitoJUnitRunner.class)
 public class S3StorageClientTest {
   private static final String BUCKET_NAME = "some_bucket";
+
   private static S3ObjectSummary newSummary(String key) {
     S3ObjectSummary s = new S3ObjectSummary();
     s.setKey(key);
     return s;
   }
-  @Mock
-  private ObjectListing listing;
 
-  @Captor
-  private ArgumentCaptor<PutObjectRequest> requestCaptor;
+  @Mock private ObjectListing listing;
 
-  @Mock
-  private AmazonS3 s3;
+  @Captor private ArgumentCaptor<PutObjectRequest> requestCaptor;
+
+  @Mock private AmazonS3 s3;
 
   private S3StorageClient storage;
 
@@ -47,8 +47,8 @@ public class S3StorageClientTest {
 
   @Test
   public void testCreateObject() throws IOException {
-    storage.createObject("a/b/c.txt", "plain/txt", new ByteArrayInputStream("xyz".getBytes()),
-        false);
+    storage.createObject(
+        "a/b/c.txt", "plain/txt", new ByteArrayInputStream("xyz".getBytes()), false);
     verify(s3).putObject(requestCaptor.capture());
     PutObjectRequest r = requestCaptor.getValue();
     assertThat(r.getKey()).isEqualTo("a/b/c.txt");

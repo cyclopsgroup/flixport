@@ -1,11 +1,11 @@
 package org.cyclopsgroup.flixport.store;
 
+import com.google.api.client.util.Preconditions;
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 import javax.annotation.Nullable;
-import com.google.api.client.util.Preconditions;
-import com.google.common.base.Strings;
 
 public class PrefixedDestinationStorage implements DestinationStorage {
   public static DestinationStorage decorate(DestinationStorage storage, @Nullable String prefix) {

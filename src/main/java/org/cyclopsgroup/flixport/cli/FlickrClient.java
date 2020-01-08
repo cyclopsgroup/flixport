@@ -1,11 +1,5 @@
 package org.cyclopsgroup.flixport.cli;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import org.scribe.model.Token;
-import org.scribe.model.Verifier;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.RequestContext;
@@ -16,6 +10,12 @@ import com.flickr4java.flickr.util.AuthStore;
 import com.flickr4java.flickr.util.FileAuthStore;
 import com.google.api.client.util.Preconditions;
 import com.google.common.collect.ImmutableList;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import org.scribe.model.Token;
+import org.scribe.model.Verifier;
 
 public class FlickrClient {
   interface CollectionFn<T> {
@@ -41,8 +41,9 @@ public class FlickrClient {
   }
 
   void authenticate(File authDir, boolean forceToAuthenticate) throws FlickrException, IOException {
-    AuthStore authStore = new FileAuthStore(
-        new File(System.getProperty("user.home") + File.separatorChar + ".flickr"));
+    AuthStore authStore =
+        new FileAuthStore(
+            new File(System.getProperty("user.home") + File.separatorChar + ".flickr"));
     ImmutableList<Auth> auths = ImmutableList.copyOf(authStore.retrieveAll());
     Auth auth;
     if (auths.isEmpty() || forceToAuthenticate) {

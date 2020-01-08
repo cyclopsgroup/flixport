@@ -1,9 +1,9 @@
 package org.cyclopsgroup.flixport.store;
 
+import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
-import com.google.common.base.Preconditions;
 
 public class ForwardingDestinationStorage implements DestinationStorage {
   private DestinationStorage delegate;

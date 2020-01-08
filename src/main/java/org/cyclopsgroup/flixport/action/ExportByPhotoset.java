@@ -1,13 +1,13 @@
 package org.cyclopsgroup.flixport.action;
 
-import java.io.IOException;
-import org.cyclopsgroup.flixport.store.DestinationStorage;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.photosets.Photoset;
 import com.flickr4java.flickr.photosets.Photosets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.flogger.FluentLogger;
+import java.io.IOException;
+import org.cyclopsgroup.flixport.store.DestinationStorage;
 
 /**
  * Exports photos by scanning through all photosets and dump photos based on photoset identifiers in
@@ -28,7 +28,7 @@ public class ExportByPhotoset extends AbstractExportSupport implements AutoFlick
   @Override
   public void run() throws IOException, FlickrException {
     String userId = flickr.getAuth().getUser().getId();
-    for (int i = 0;; i++) {
+    for (int i = 0; ; i++) {
       Photosets sets = flickr.getPhotosetsInterface().getList(userId, PAGE_SIZE, i, null);
       if (sets.getPhotosets().isEmpty()) {
         logger.atInfo().log("Reached empty page of fileset at page %s, exits.", i);

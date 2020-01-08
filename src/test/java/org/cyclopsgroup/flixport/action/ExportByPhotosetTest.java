@@ -7,16 +7,7 @@ import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import org.cyclopsgroup.flixport.store.DestinationStorage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.auth.Auth;
@@ -30,6 +21,16 @@ import com.flickr4java.flickr.photosets.Photosets;
 import com.flickr4java.flickr.photosets.PhotosetsInterface;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import org.cyclopsgroup.flixport.store.DestinationStorage;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExportByPhotosetTest {
@@ -42,16 +43,12 @@ public class ExportByPhotosetTest {
     authWithUser.setUser(user);
   }
 
-  @Mock
-  private Flickr flickr;
+  @Mock private Flickr flickr;
 
-  @Mock
-  private PhotosetsInterface photosetsInterface;
-  @Mock
-  private PhotosInterface photosInterface;
+  @Mock private PhotosetsInterface photosetsInterface;
+  @Mock private PhotosInterface photosInterface;
 
-  @Mock
-  private DestinationStorage storage;
+  @Mock private DestinationStorage storage;
 
   private ExportByPhotoset newAction(ExportOptions options) {
     return new ExportByPhotoset(flickr, storage, options);

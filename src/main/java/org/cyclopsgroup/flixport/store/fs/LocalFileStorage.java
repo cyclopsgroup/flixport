@@ -1,5 +1,8 @@
 package org.cyclopsgroup.flixport.store.fs;
 
+import com.google.api.client.util.Preconditions;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.flogger.FluentLogger;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,9 +12,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
-import com.google.api.client.util.Preconditions;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.flogger.FluentLogger;
 
 public class LocalFileStorage implements DestinationStorage {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
@@ -26,8 +26,8 @@ public class LocalFileStorage implements DestinationStorage {
           "Directory %s would be created since it doesn't exist, but it's not because of dry run.");
       return directory;
     }
-    Preconditions.checkState(directory.mkdirs(),
-        "Root directory %s doesn't exist and can't be created.", directory);
+    Preconditions.checkState(
+        directory.mkdirs(), "Root directory %s doesn't exist and can't be created.", directory);
     logger.atInfo().log("Made new directory %s since it didn't exist.", directory);
     return directory;
   }
@@ -68,7 +68,9 @@ public class LocalFileStorage implements DestinationStorage {
     if (!directory.exists()) {
       return Collections.emptySet();
     }
-    return Arrays.asList(directory.listFiles(File::isFile)).stream().map(f -> f.getName())
-        .filter(n -> !n.endsWith(TEMP_SUFFIX)).collect(Collectors.toSet());
+    return Arrays.asList(directory.listFiles(File::isFile)).stream()
+        .map(f -> f.getName())
+        .filter(n -> !n.endsWith(TEMP_SUFFIX))
+        .collect(Collectors.toSet());
   }
 }

@@ -1,6 +1,7 @@
 package org.cyclopsgroup.flixport.store.fs;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import java.io.File;
 import org.apache.commons.lang3.SystemUtils;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
@@ -15,14 +16,19 @@ public class LocalFileStorageFactoryTest {
 
   @Test
   public void testWithEmptyPath() {
-    verifyStorage(new File(""), new LocalFileStorageFactory()
-        .createStorage(SimpleDestinationStorageOptions.forSpec("file:")));
+    verifyStorage(
+        new File(""),
+        new LocalFileStorageFactory()
+            .createStorage(SimpleDestinationStorageOptions.forSpec("file:")));
   }
 
   @Test
   public void testWithTempFile() {
     File tempDir = SystemUtils.getJavaIoTmpDir();
-    verifyStorage(tempDir, new LocalFileStorageFactory().createStorage(
-        SimpleDestinationStorageOptions.forSpec("file:" + tempDir.getAbsolutePath())));
+    verifyStorage(
+        tempDir,
+        new LocalFileStorageFactory()
+            .createStorage(
+                SimpleDestinationStorageOptions.forSpec("file:" + tempDir.getAbsolutePath())));
   }
 }

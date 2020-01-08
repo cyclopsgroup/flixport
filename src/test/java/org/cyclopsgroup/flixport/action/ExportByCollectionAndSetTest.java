@@ -3,6 +3,14 @@ package org.cyclopsgroup.flixport.action;
 import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+import com.flickr4java.flickr.Flickr;
+import com.flickr4java.flickr.FlickrException;
+import com.flickr4java.flickr.auth.Auth;
+import com.flickr4java.flickr.collections.Collection;
+import com.flickr4java.flickr.collections.CollectionsInterface;
+import com.flickr4java.flickr.people.User;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import org.junit.After;
@@ -11,13 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import com.flickr4java.flickr.Flickr;
-import com.flickr4java.flickr.FlickrException;
-import com.flickr4java.flickr.auth.Auth;
-import com.flickr4java.flickr.collections.Collection;
-import com.flickr4java.flickr.collections.CollectionsInterface;
-import com.flickr4java.flickr.people.User;
-import com.google.common.collect.ImmutableList;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExportByCollectionAndSetTest {
@@ -29,23 +30,22 @@ public class ExportByCollectionAndSetTest {
     user.setId(USER_ID);
     authWithUser.setUser(user);
   }
+
   private ExportByCollectionAndSet action;
 
-  @Mock
-  private Flickr flickr;
+  @Mock private Flickr flickr;
 
-  @Mock
-  private CollectionsInterface collectionsInterface;
+  @Mock private CollectionsInterface collectionsInterface;
 
-  @Mock
-  private DestinationStorage storage;
+  @Mock private DestinationStorage storage;
 
   @Before
   public void setUp() {
     when(flickr.getAuth()).thenReturn(authWithUser);
     when(flickr.getCollectionsInterface()).thenReturn(collectionsInterface);
-    action = new ExportByCollectionAndSet(flickr, storage,
-        SimpleExportOptions.forDestination(null, "$f.id"));
+    action =
+        new ExportByCollectionAndSet(
+            flickr, storage, SimpleExportOptions.forDestination(null, "$f.id"));
   }
 
   @Test

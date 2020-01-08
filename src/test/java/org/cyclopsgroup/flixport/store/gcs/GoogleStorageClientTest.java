@@ -4,6 +4,12 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.Storage.BlobListOption;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
@@ -11,21 +17,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import com.google.api.gax.paging.Page;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.Storage.BlobListOption;
-import com.google.common.collect.ImmutableList;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GoogleStorageClientTest {
   private GoogleStorageClient client;
-  @Mock
-  private Blob returnedBlob;
-  @Mock
-  private Page<Blob> returnedPage;
-  @Mock
-  private Storage storage;
+  @Mock private Blob returnedBlob;
+  @Mock private Page<Blob> returnedPage;
+  @Mock private Storage storage;
 
   @Before
   public void setUp() throws IOException {

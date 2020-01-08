@@ -1,7 +1,7 @@
 package org.cyclopsgroup.flixport.action;
 
-import javax.annotation.Nullable;
 import com.google.auto.value.AutoValue;
+import javax.annotation.Nullable;
 
 @AutoValue
 abstract class SimpleExportOptions implements ExportOptions {

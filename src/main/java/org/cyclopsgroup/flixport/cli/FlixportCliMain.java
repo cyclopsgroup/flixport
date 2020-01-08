@@ -1,5 +1,9 @@
 package org.cyclopsgroup.flixport.cli;
 
+import com.flickr4java.flickr.Flickr;
+import com.flickr4java.flickr.REST;
+import com.google.common.base.Preconditions;
+import com.google.common.flogger.FluentLogger;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -9,10 +13,6 @@ import org.cyclopsgroup.flixport.action.ExportByCollectionAndSet;
 import org.cyclopsgroup.flixport.action.ExportByPhotoset;
 import org.cyclopsgroup.flixport.store.DestinationStorage;
 import org.cyclopsgroup.jcli.ArgumentProcessor;
-import com.flickr4java.flickr.Flickr;
-import com.flickr4java.flickr.REST;
-import com.google.common.base.Preconditions;
-import com.google.common.flogger.FluentLogger;
 
 public class FlixportCliMain {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
@@ -60,7 +60,8 @@ public class FlixportCliMain {
     DestinationStorage storage = new DynamicDestinationStorage(options);
     logger.atInfo().log("Destination storage is %s.", storage);
     try (AutoFlickrAction action =
-        options.byCollection ? new ExportByCollectionAndSet(flickr, storage, options)
+        options.byCollection
+            ? new ExportByCollectionAndSet(flickr, storage, options)
             : new ExportByPhotoset(flickr, storage, options)) {
       action.run();
     }
