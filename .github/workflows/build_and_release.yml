@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install Java
+      - name: Java8
         uses: actions/setup-java@v2
         with:
-          java-version: 14
-          distribution: 'adopt'
-      - name: Run Maven
-        run: mvn package source:jar javadoc:jar deploy
+          java-version: '8'
+          distribution: 'zulu'
+      - name: Maven
+        run: mvn --batch-mode --update-snapshots verify package deploy

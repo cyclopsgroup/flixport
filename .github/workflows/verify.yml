@@ -12,5 +12,5 @@ jobs:
         with:
           java-version: '8'
           distribution: 'zulu'
-      - name: Run Maven
+      - name: Maven
         run: mvn --batch-mode --update-snapshots verify javadoc:javadoc
