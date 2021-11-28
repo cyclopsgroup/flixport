@@ -16,6 +16,7 @@ jobs:
           distribution: 'zulu'
       - name: Maven
         run: mvn --batch-mode --update-snapshots verify package deploy
+        env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
 
