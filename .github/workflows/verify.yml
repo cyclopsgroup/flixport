@@ -7,9 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
+      - name: Setup JDK
         uses: actions/setup-java@v2
         with:
           java-version: '11'
+          distribution: 'adopt'
       - name: Run Maven
-        run: mvn --batch-mode --upgrade-snapshots package javadoc:javadoc verify
+        run: mvn --batch-mode --update-snapshots verify javadoc:javadoc
