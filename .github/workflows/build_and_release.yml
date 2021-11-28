@@ -1,7 +1,8 @@
 name: Maven build and release
 
 on:
-  push: [main, snapshot]
+  push:
+    branches: [main, snapshot]
 
 jobs:
   build_and_release:
