@@ -1,4 +1,4 @@
-name: Maven build and release
+name: Maven release
 
 on:
   push:
