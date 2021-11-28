@@ -1,17 +1,15 @@
 name: Maven verify
 
-on:
-  push: [main, snapshot]
+on: [push]
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Java
-        uses: actions/setup-java@v1
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
         with:
-          java-version: 14
+          java-version: '11'
       - name: Run Maven
-        run: mvn package javadoc:javadoc
+        run: mvn --batch-mode --upgrade-snapshots package javadoc:javadoc verify
