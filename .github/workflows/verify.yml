@@ -12,7 +12,7 @@ jobs:
         with:
           java-version: '8'
           distribution: 'zulu'
-      - name: Mave cache
+      - name: Maven cache
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
