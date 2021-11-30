@@ -6,22 +6,4 @@ on:
 
 jobs:
   build_and_release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
-        with:
-          java-version: '8'
-          distribution: 'zulu'
-      - uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            maven-
-      - name: run maven
-        run: mvn --batch-mode --update-snapshots verify package deploy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-
+    uses: cyclopsgroup/cyclopsgroup/.github/workflows/maven-release-snapshot.yml@main
