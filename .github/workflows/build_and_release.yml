@@ -11,5 +11,5 @@ jobs:
     uses: cyclopsgroup/cyclopsgroup/.github/workflows/maven-release-snapshot.yml@main
     secrets:
       awsAccessKeyId: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      awsSecretkey: ${{ secrets:AWS_SECRET_KEY }}
+      awsSecretkey: ${{ secrets.AWS_SECRET_KEY }}
 
